@@ -1,5 +1,6 @@
 *.wasm
 *.js
 examples.py
+wasm3_test.py
 __pycache__
 .mypy_cache

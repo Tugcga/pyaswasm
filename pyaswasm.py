@@ -467,20 +467,25 @@ class ASModule():
                 return "unknown"
 
         to_return = []
-        to_return.append("Globals:")
-        for gn in self.global_names:
-            to_return.append("\t" + gn)
-        to_return.append("Functions:")
-        for item, value in self.functions_dict.items():
-            f_in_params: List[int] = value.type.params
-            f_out_params: List[int] = value.type.results
-            to_return.append("\t" + item + "(" + ", ".join([id_to_type(v) for v in f_in_params]) + ") -> " + ("void" if len(f_out_params) == 0 else ", ".join([id_to_type(v) for v in f_out_params])))
-        to_return.append("Classes:")
-        for item, value in self.classes_dict.items():
-            to_return.append("\t" + item + ":")
-            for f_name, f in value.items():
-                if (not "get:" in f_name) and (not "set:" in f_name):
-                    in_params: List[int] = f.type.params
-                    out_params: List[int] = f.type.results
-                    to_return.append("\t\t" + f_name + "(" + ", ".join([id_to_type(v) for v in in_params]) + ") -> " + ("void" if len(out_params) == 0 else ", ".join([id_to_type(v) for v in out_params])))
+        if len(self.global_names) > 0:
+            to_return.append("Globals:")
+            for gn in self.global_names:
+                to_return.append("\t" + gn)
+        if len(self.functions_dict) > 0:
+            to_return.append("Functions:")
+            for item, value in self.functions_dict.items():
+                f_in_params: List[int] = value.type.params
+                f_out_params: List[int] = value.type.results
+                to_return.append("\t" + item + "(" + ", ".join([id_to_type(v) for v in f_in_params]) + ") -> " + ("void" if len(f_out_params) == 0 else ", ".join([id_to_type(v) for v in f_out_params])))
+        if len(self.classes_dict) > 0:
+            to_return.append("Classes:")
+            for item, value in self.classes_dict.items():
+                to_return.append("\t" + item + ":")
+                for f_name, f in value.items():
+                    if (not "get:" in f_name) and (not "set:" in f_name):
+                        in_params: List[int] = f.type.params
+                        out_params: List[int] = f.type.results
+                        to_return.append("\t\t" + f_name + "(" + ", ".join([id_to_type(v) for v in in_params]) + ") -> " + ("void" if len(out_params) == 0 else ", ".join([id_to_type(v) for v in out_params])))
+        if len(to_return) == 0:
+            return "module is empty"
         return "\n".join(to_return)
