@@ -125,35 +125,27 @@ class ASModule():
         import_object = ImportObject()
         if imports is None:
             imports = {}
-        is_abort_seed = False
-        is_trace = False
-        if ("env", "abort") in imports and ("env", "seed") in imports and ("env", "trace") in imports:
-            # imports contains castom callbacks
-            import_object.register(
-                "env",
-                {
-                    "abort": Function(store, imports[("env", "abort")]),
-                    "trace": Function(store, imports[("env", "trace")]),
-                    "seed": Function(store, imports[("env", "seed")], FunctionType([], [Type.F64]))
-                }
-            )
-            imports[("env", "abort")].module = self
-            imports[("env", "trace")].module = self
-            imports[("env", "seed")].module = self
-        else:
-            # set default callbacks
-            import_object.register(
-                "env",
-                {
-                    "abort": Function(store, self._abort),
-                    "trace": Function(store, self._trace),
-                    "seed": Function(store, self._seed, FunctionType([], [Type.F64]))
-                }
-            )
-        for k, v in imports.items():
-            if k != ("env", "abort") and k != ("env", "seed") and k != ("env", "trace"):
-                v.module = self
-                import_object.register(k[0], {k[1]: Function(store, v)})
+        # add default callbacks
+        if ("env", "abort") not in imports:
+            imports[("env", "abort")] = self._abort
+        if ("env", "seed") not in imports:
+            imports[("env", "seed")] = self._seed
+        if ("env", "trace") not in imports:
+            imports[("env", "trace")] = self._trace
+
+        # prepare names of import groups
+        import_groups = []
+        for k in imports:
+            if k[0] not in import_groups:
+                import_groups.append(k[0])
+
+        # import functions for each group
+        for group in import_groups:
+            import_group_dict: Dict[str, Function] = {}
+            for k, v in imports.items():
+                if k[0] == group:
+                    import_group_dict[k[1]] = Function(store, imports[k])
+            import_object.register(group, import_group_dict)
 
         self.instance = Instance(module, import_object)
         self._exports = self.instance.exports
