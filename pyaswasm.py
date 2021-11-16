@@ -125,6 +125,8 @@ class ASModule():
         import_object = ImportObject()
         if imports is None:
             imports = {}
+        for k, v in imports.items():
+            v.module = self
         # add default callbacks
         if ("env", "abort") not in imports:
             imports[("env", "abort")] = self._abort
@@ -144,7 +146,7 @@ class ASModule():
             import_group_dict: Dict[str, Function] = {}
             for k, v in imports.items():
                 if k[0] == group:
-                    import_group_dict[k[1]] = Function(store, imports[k])
+                    import_group_dict[k[1]] = Function(store, v)
             import_object.register(group, import_group_dict)
 
         self.instance = Instance(module, import_object)
