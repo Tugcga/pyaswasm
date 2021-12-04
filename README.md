@@ -2,6 +2,12 @@
 
 This is loader of [AssemblyScript](https://www.assemblyscript.org/) wasm-modules for Python. It use [Wasmer for Python](https://github.com/wasmerio/wasmer-python) as backend. This loader is a direct port of the default [AssemblyScript loader](https://github.com/AssemblyScript/assemblyscript/tree/main/lib/loader) from JavaScript to Python. Also we use [wasmbind](https://github.com/miracle2k/wasmbind) as reference.
 
+## How to install
+
+Simply
+
+```pip install pyaswasm```
+
 ## Supported features
 
 * Convert strings and numeric arrays from Python to wasm memory and back
