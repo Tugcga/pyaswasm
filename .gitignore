@@ -4,3 +4,8 @@ examples.py
 wasm3_test.py
 __pycache__
 .mypy_cache
+dist
+LICENSE
+setup.cfg
+pyproject.toml
+pyaswasm.egg-info
