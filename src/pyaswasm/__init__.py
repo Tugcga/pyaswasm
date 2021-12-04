@@ -1,5 +1,4 @@
 from wasmer import engine, Store, Memory, Module, Instance, ImportObject, Function, Type, FunctionType, Global, GlobalType, Uint8Array, Uint16Array, Uint32Array  # type: ignore
-from wasmer_compiler_cranelift import Compiler  # type: ignore
 from typing import Dict, Any, Union, List, Tuple
 import random
 import struct
