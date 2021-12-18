@@ -52,6 +52,12 @@ Notice that for all functions in the imports dictionary the module add it refere
 
 The module use default functions for ```abort```, ```trace``` and ```seed```, but it's possible to override it.
 
+If you would like to define signature of the imported functions, then to the tuple ```("module name", "function name")``` in the imports dictionary you should instead function juxtapose the tuple ```(function, ([input types], [output types]))```. For example, for the ```console_log``` function it should be 
+
+```
+imports={("index", "console.log"): (console_log, ([Type.I32], []))}
+```
+
 ### How to use arrays
 
 Wasm module return pointers to all non-numeric values in the memory. So, if we use arrays, then it should be created inside the memory and then we should use pointer to the corresponding data block for functions and any other calculations.

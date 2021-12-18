@@ -1,4 +1,4 @@
-from wasmer import engine, Store, Memory, Module, Instance, ImportObject, Function, Type, FunctionType, Global, GlobalType, Uint8Array, Uint16Array, Uint32Array  # type: ignore
+from wasmer import engine, Store, Memory, Module, Instance, ImportObject, Function, Type, Value, FunctionType, Global, GlobalType, Uint8Array, Uint16Array, Uint32Array  # type: ignore
 from typing import Dict, Any, Union, List, Tuple
 import random
 import struct
@@ -102,7 +102,7 @@ def make_class(class_name: str, class_exports: Dict[str, Function], module) -> U
         pass
 
     def wrap(cls, ptr: int):
-        # when we call wrap, then the object alreay initialized on WASM side and we need only references to it methods
+        # when we call wrap, then the object already initialized on WASM side and we need only references to it methods
         return cls.create(ptr)
 
     # setup class attributes
@@ -125,12 +125,15 @@ class ASModule():
         if imports is None:
             imports = {}
         for k, v in imports.items():
-            v.module = self
+            if isinstance(v, tuple):
+                v[0].module = self
+            else:
+                v.module = self
         # add default callbacks
         if ("env", "abort") not in imports:
             imports[("env", "abort")] = self._abort
         if ("env", "seed") not in imports:
-            imports[("env", "seed")] = self._seed
+            imports[("env", "seed")] = (self._seed, ([], [Type.F64]))
         if ("env", "trace") not in imports:
             imports[("env", "trace")] = self._trace
 
@@ -145,7 +148,10 @@ class ASModule():
             import_group_dict: Dict[str, Function] = {}
             for k, v in imports.items():
                 if k[0] == group:
-                    import_group_dict[k[1]] = Function(store, v)
+                    if isinstance(v, tuple):
+                        import_group_dict[k[1]] = Function(store, v[0], FunctionType(*v[1]))
+                    else:
+                        import_group_dict[k[1]] = Function(store, v)
             import_object.register(group, import_group_dict)
 
         self.instance = Instance(module, import_object)
@@ -171,6 +177,7 @@ class ASModule():
         class_dict = {}  # store here all functions from the module
         self.functions_dict = {}
         self.classes_dict: Dict[str, Dict[str, Function]] = {}  # store here data about exported classes: class name and it methods
+        static_methods = []  # store here triples (class_name, method_name, function)
         for i in range(len(self._exports)):
             exp = module.exports[i]
             e_name = exp.name
@@ -185,13 +192,23 @@ class ASModule():
                     # do nothing
                     pass
                 else:
-                    class_dict[e_name] = make_method(getattr(self._exports, e_name))  # override function, and all ASObject arguments convert to it pointers
-                    self.functions_dict[e_name] = getattr(self._exports, e_name)
+                    if "." in e_name:
+                        # function name contains ., hence this is static method of the class
+                        class_name, method_name = e_name.split(".")
+                        static_methods.append((class_name, method_name, getattr(self._exports, e_name)))
+                    else:
+                        class_dict[e_name] = make_method(getattr(self._exports, e_name))  # override function, and all ASObject arguments convert to it pointers
+                        self.functions_dict[e_name] = getattr(self._exports, e_name)
             elif isinstance(e_type, GlobalType):
                 # globals
                 self.global_names.append(e_name)
             else:
                 pass
+
+        for s in static_methods:
+            class_name, method_name, function = s
+            if class_name in self.classes_dict.keys():
+                self.classes_dict[class_name][method_name] = function
 
         for class_name, class_exports in self.classes_dict.items():
             class_dict[class_name] = make_class(class_name, class_exports, self)
@@ -377,7 +394,7 @@ class ASModule():
                 view_32[(arr + ARRAY_LENGTH_OFFSET) // 4] = length
             result = arr
         view: Union[Uint8Array, Uint16Array, Uint32Array] = self._get_view(align, bool(type_info & VAL_SIGNED), bool(type_info & VAL_FLOAT))
-        if bool(type_info & VAL_FLOAT):
+        if bool(type_info & VAL_FLOAT) and length > 0:
             # set values of the float array
             if align == 2:
                 view[array_start:array_start + 4*length] = struct.pack("%sf" % len(values), *values)
