@@ -191,6 +191,8 @@ module.unpin(vectors_ptr)
 
 ## Performance
 
+### Pathfinding benchmark
+
 We use benchmark from [Path Finder](https://github.com/Tugcga/Path-Finder), which contains wasm module for path finding tasks. We use navigation mesh with 2 294 polygons, select different pairs of points and find shortest path between these points in the navigation mesh. The following table contains execution time of different tasks for Node.js (by using default AssemblyScript loader) and Wasmer (by using our loader).
 
 | Task | Node.js | Wasmer |
@@ -203,3 +205,17 @@ initialization | 0.06 sec | 0.17 sec
 65 536 pairs | 8.63 sec | 27.27 sec
 
 The result: Wasmer is nearly 3.1-3.2 times slowly than Node.js.
+
+### RVO2 collision avoidance
+
+In this benchmark we use RVOSimulator from the same [Path Finder](https://github.com/Tugcga/Path-Finder) module. We create a simple RVOSimulator without any obstacles, add a number of agents into it and simulate it several steps. The results in the table:
+
+| Task | Node.js | Wasmer |
+|---|---|---|
+100 agents, 100 steps | 0.15 sec | 0.35 sec
+1000 agents, 100 steps | 1.64 sec | 4.3 sec
+100 agents, 1000 steps | 1.37 sec | 3.58 sec
+1000 agents, 1000 steps | 16.1 sec | 41.98 sec
+100 000 agents, 1 step | 3.42 sec | 6.69 sec
+
+So, in this benchmark Wasmer version is 2.6 times slowly than Node.js.
