@@ -2,6 +2,8 @@
 
 This is loader of [AssemblyScript](https://www.assemblyscript.org/) wasm-modules for Python. It use [Wasmer for Python](https://github.com/wasmerio/wasmer-python) as backend. This loader is a direct port of the default [AssemblyScript loader](https://github.com/AssemblyScript/assemblyscript/tree/main/lib/loader) from JavaScript to Python. Also we use [wasmbind](https://github.com/miracle2k/wasmbind) as reference.
 
+AssemblyScript loader is deprecated since AssemblyScript 0.20.x. Our loader correctly works with all wasm-files, compiled by AssemblyScript 0.19.x and earlier. It should works also with wasm-files from AssemblyScript 0.2x.y, but it is not exactly.
+
 ## How to install
 
 Simply
