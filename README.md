@@ -206,7 +206,7 @@ initialization | 0.06 sec | 0.17 sec
 38 416 pairs | 5.19 sec | 16.05 sec
 65 536 pairs | 8.63 sec | 27.27 sec
 
-The result: Wasmer is nearly 3.1-3.2 times slowly than Node.js.
+The result: Wasmer is nearly **3.1-3.2** times slowly than Node.js.
 
 ### RVO2 collision avoidance
 
@@ -220,4 +220,18 @@ In this benchmark we use RVOSimulator from the same [Path Finder](https://github
 1000 agents, 1000 steps | 16.1 sec | 41.98 sec
 100 000 agents, 1 step | 3.42 sec | 6.69 sec
 
-So, in this benchmark Wasmer version is 2.6 times slowly than Node.js.
+So, in this benchmark Wasmer version is **2.6** times slowly than Node.js.
+
+
+### Raytrace rendering
+
+For this benchmark we use simple raytracer [AsTracer](https://github.com/Tugcga/AsTracer). We use a corner box scene with rectangular mesh light. For benchmark we execute render task for different number of samples and measure the render time. The results in the table:
+
+| Samples | Node.js | Wasmer |
+|---|---|---|
+1 | 1.53 sec. | 5.51 sec.
+10 | 15.45 sec. |  55.11 sec.
+64 | 100.39 sec |  359.98 sec.
+128 | 202.94 sec |  705.57 sec.
+
+In this benchmark the Wasmer is **3.5-3.6** times slowly than Node.js.
